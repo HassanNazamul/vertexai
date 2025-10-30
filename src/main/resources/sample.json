@@ -1,0 +1,253 @@
+{
+    "userId": "nazx-101",
+    "plan": {
+        "location": "Montreal, Canada",
+        "budget": 1500.0,
+        "startDate": "2024-03-08",
+        "endDate": "2024-03-10",
+        "numberOfPeople": 2,
+        "theme": "Food and History",
+        "days": [
+            {
+                "dayNumber": 1,
+                "date": "2024-03-08",
+                "weather": {
+                    "temperature": -2,
+                    "condition": "Cloudy"
+                },
+                "hotel": {
+                    "hotelName": "Hotel Birks Montreal",
+                    "location": "Downtown Montreal",
+                    "pricePerNight": 300.0,
+                    "placeDetails": {
+                        "placeId": "ChIJwY249zY2yUwR24C18k_l_c4",
+                        "formattedAddress": "1240 Phillips Square, Montréal, QC H3B 3H4, Canada",
+                        "lat": 45.5037,
+                        "lng": -73.5736,
+                        "website": "https://www.hotelbirksmontreal.com/",
+                        "rating": 4.6,
+                        "photoUrls": []
+                    }
+                },
+                "activities": [
+                    {
+                        "name": "Old Montreal Walking Tour",
+                        "price": 30.0,
+                        "duration": "3 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ53CZqV0ZyUwrl6u8jV_N-g",
+                            "formattedAddress": "Montreal, QC, Canada",
+                            "lat": 45.5017,
+                            "lng": -73.5567,
+                            "website": null,
+                            "rating": 4.5,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Lunch at Schwartz's Deli",
+                        "price": 35.0,
+                        "duration": "1.5 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ1_wL9FoZyUwR47kIa5F-gM",
+                            "formattedAddress": "3895 Saint-Laurent Blvd, Montreal, QC H2W 1X9, Canada",
+                            "lat": 45.5171,
+                            "lng": -73.5763,
+                            "website": "http://schwartzsdeli.com/",
+                            "rating": 4.5,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Pointe-à-Callière, Montréal Archaeology and History Complex",
+                        "price": 25.0,
+                        "duration": "2.5 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJv9c3xVoZyUwR-yYc6j08y0",
+                            "formattedAddress": "350 Place Royale, Montréal, QC H2Y 3X9, Canada",
+                            "lat": 45.502,
+                            "lng": -73.5535,
+                            "website": "https://pacmusee.qc.ca/en/",
+                            "rating": 4.5,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Dinner at L'Original Restaurant",
+                        "price": 70.0,
+                        "duration": "2 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJl6J7J1oZyUwR9s_h59E9tVY",
+                            "formattedAddress": "479 St Alexis St, Montreal, QC H2Y 2N7, Canada",
+                            "lat": 45.5034,
+                            "lng": -73.5559,
+                            "website": "http://www.restaurantoriginal.com/",
+                            "rating": 4.4,
+                            "photoUrls": []
+                        }
+                    }
+                ]
+            },
+            {
+                "dayNumber": 2,
+                "date": "2024-03-09",
+                "weather": {
+                    "temperature": -1,
+                    "condition": "Snowy"
+                },
+                "hotel": {
+                    "hotelName": "Hotel Birks Montreal",
+                    "location": "Downtown Montreal",
+                    "pricePerNight": 300.0,
+                    "placeDetails": {
+                        "placeId": "ChIJwY249zY2yUwR24C18k_l_c4",
+                        "formattedAddress": "1240 Phillips Square, Montréal, QC H3B 3H4, Canada",
+                        "lat": 45.5037,
+                        "lng": -73.5736,
+                        "website": "https://www.hotelbirksmontreal.com/",
+                        "rating": 4.6,
+                        "photoUrls": []
+                    }
+                },
+                "activities": [
+                    {
+                        "name": "Visit the Montreal Museum of Fine Arts",
+                        "price": 24.0,
+                        "duration": "3 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ1_wL9FoZyUwR47kIa5F-gM",
+                            "formattedAddress": "1380 Sherbrooke St W, Montreal, QC H3G 1J5, Canada",
+                            "lat": 45.5007,
+                            "lng": -73.5785,
+                            "website": "https://www.mbam.qc.ca/en/",
+                            "rating": 4.6,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Jean-Talon Market Food Tour",
+                        "price": 40.0,
+                        "duration": "3 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ2e49m70ZyUwR3Lkx762d23k",
+                            "formattedAddress": "7070 Henri Julien Ave, Montreal, QC H2S 3S3, Canada",
+                            "lat": 45.5344,
+                            "lng": -73.614,
+                            "website": "https://www.marchejeantalon.com/en/",
+                            "rating": 4.7,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Explore the Underground City",
+                        "price": 0.0,
+                        "duration": "2 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJW9o4pVoZyUwR3-QkG_NnL2E",
+                            "formattedAddress": "Montreal, QC, Canada",
+                            "lat": 45.5087,
+                            "lng": -73.5617,
+                            "website": null,
+                            "rating": 4.3,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Dinner at Au Pied de Cochon",
+                        "price": 90.0,
+                        "duration": "2.5 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ6T5tYl4ZyUwR69yP983k5aI",
+                            "formattedAddress": "536 Duluth Ave E, Montreal, QC H2L 1A9, Canada",
+                            "lat": 45.5217,
+                            "lng": -73.5709,
+                            "website": "http://www.restaurantaupieddecochon.ca/",
+                            "rating": 4.5,
+                            "photoUrls": []
+                        }
+                    }
+                ]
+            },
+            {
+                "dayNumber": 3,
+                "date": "2024-03-10",
+                "weather": {
+                    "temperature": 1,
+                    "condition": "Sunny"
+                },
+                "hotel": {
+                    "hotelName": "Hotel Birks Montreal",
+                    "location": "Downtown Montreal",
+                    "pricePerNight": 300.0,
+                    "placeDetails": {
+                        "placeId": "ChIJwY249zY2yUwR24C18k_l_c4",
+                        "formattedAddress": "1240 Phillips Square, Montréal, QC H3B 3H4, Canada",
+                        "lat": 45.5037,
+                        "lng": -73.5736,
+                        "website": "https://www.hotelbirksmontreal.com/",
+                        "rating": 4.6,
+                        "photoUrls": []
+                    }
+                },
+                "activities": [
+                    {
+                        "name": "Visit Saint Joseph's Oratory",
+                        "price": 0.0,
+                        "duration": "3 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJh_N84q0ZyUwR8jLq02X-l9s",
+                            "formattedAddress": "3800 Queen Mary Rd, Montreal, QC H3V 1H6, Canada",
+                            "lat": 45.4958,
+                            "lng": -73.6142,
+                            "website": "https://www.saint-joseph.org/en/",
+                            "rating": 4.7,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Bagel Tasting at St-Viateur Bagel",
+                        "price": 10.0,
+                        "duration": "1 hour",
+                        "placeDetails": {
+                            "placeId": "ChIJ6-z3tV0ZyUwR93bM34R_q_8",
+                            "formattedAddress": "263 Saint-Viateur St W, Montreal, QC H2V 1Y1, Canada",
+                            "lat": 45.5226,
+                            "lng": -73.5946,
+                            "website": "http://www.stviateurbagel.com/",
+                            "rating": 4.6,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Mount Royal Park Exploration",
+                        "price": 0.0,
+                        "duration": "3 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ7VnF5l4ZyUwR2q9eK5l7KqY",
+                            "formattedAddress": "1260 Remembrance Rd, Montreal, QC H3H 1A2, Canada",
+                            "lat": 45.5056,
+                            "lng": -73.5896,
+                            "website": "https://www.mtl.org/en/what-to-do/parks-natural-sites/mount-royal-park",
+                            "rating": 4.7,
+                            "photoUrls": []
+                        }
+                    },
+                    {
+                        "name": "Farewell Dinner at Gibbys Restaurant",
+                        "price": 100.0,
+                        "duration": "2.5 hours",
+                        "placeDetails": {
+                            "placeId": "ChIJ53CZqV0ZyUwrl6u8jV_N-g",
+                            "formattedAddress": "298 Place d'Youville, Montréal, QC H2Y 2B6, Canada",
+                            "lat": 45.5013,
+                            "lng": -73.5549,
+                            "website": "http://www.gibbys.com/",
+                            "rating": 4.4,
+                            "photoUrls": []
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}
