@@ -7,7 +7,9 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.stereotype.Service;
 
+import com.vertexplanner.vertexai.controller.DailyOptionsRequest;
 import com.vertexplanner.vertexai.model.gemini.Activity;
+import com.vertexplanner.vertexai.model.gemini.DailyOptionsPlan;
 import com.vertexplanner.vertexai.model.gemini.Day;
 import com.vertexplanner.vertexai.model.gemini.TripPlan;
 
@@ -70,93 +72,135 @@ public class TripPlanService {
                 .flatMap(this::enrichPlanWithPlaceDetails);
     }
 
+
     /**
-     * This private method takes the basic plan from the AI and enriches it
-     * by calling the Google Places API for each relevant item (hotels, activities).
-     * It uses reactive patterns to make these calls efficiently in parallel.
-     *
-     * @param plan The basic TripPlan returned by the Gemini AI.
-     * @return A Mono that will emit the same TripPlan object, but now enriched
-     *         with PlaceDetails where available.
+     * --- NEW PUBLIC METHOD ---
+     * Generates a list of alternative Day plans.
+     */
+    public Mono<List<Day>> generateDailyOptions(DailyOptionsRequest request) {
+
+        // 1. Create an output converter for our new wrapper class (from Step 1)
+        var outputConverter = new BeanOutputConverter<>(DailyOptionsPlan.class);
+        String formatInstructions = outputConverter.getFormat();
+
+        // 2. Create a new system prompt for this specific task
+        String systemPrompt = """
+                You are a travel planner. Your job is to create several
+                alternative, detailed, and inspiring travel plans for a single day.
+
+                - You MUST generate exactly %d different options.
+                - Each option MUST be a complete 'Day' object.
+                - Each 'Day' object must have its own weather, a single hotel,
+                  and a list of activities.
+                - All plans should be for Day %d in %s.
+                - The user's preferences are: %s.
+
+                You MUST return your response in the following JSON format:
+                %s
+                """.formatted(
+                    request.numberOfOptions(),
+                    request.dayNumber(),
+                    request.location(),
+                    request.preferences(),
+                    formatInstructions);
+        
+        // 3. Create a simple user prompt (the system prompt does most of the work)
+        String userPrompt = "Generate %d options for Day %d in %s."
+            .formatted(request.numberOfOptions(), request.dayNumber(), request.location());
+
+        // 4. Call the AI
+        return Mono.fromCallable(() -> chatClient.prompt()
+                .system(systemPrompt)
+                .user(userPrompt)
+                .call()
+                .entity(outputConverter) // This returns a Mono<DailyOptionsPlan>
+        )
+        .flatMap(dailyOptionsPlan -> {
+            if (dailyOptionsPlan == null || dailyOptionsPlan.getDailyOptions() == null) {
+                return Mono.just(List.<Day>of()); // Return an empty list if AI fails
+            }
+            // 5. Enrich the list of days and return it
+            // We will write 'enrichDays' in the next action
+            return this.enrichDays(dailyOptionsPlan.getDailyOptions(), request.location())
+                    .thenReturn(dailyOptionsPlan.getDailyOptions()); // Return the enriched list
+        });
+    }
+
+
+    /**
+     * --- REFACTORED ---
+     * This method now just calls the new reusable 'enrichDays' method.
      */
     private Mono<TripPlan> enrichPlanWithPlaceDetails(TripPlan plan) {
-        // Basic validation: If the plan or its days are null, return it as is.
         if (plan == null || plan.getDays() == null) {
             System.err.println("WARN: AI returned null plan or null days list. Skipping enrichment.");
             return Mono.justOrEmpty(plan);
         }
 
-        // Create a list to hold all the individual Mono tasks for fetching place
-        // details.
+        // Call the new reusable enrichment method (which we will create next)
+        // and pass it the plan's days and location.
+        return enrichDays(plan.getDays(), plan.getLocation())
+                .thenReturn(plan); // After enrichment is done, return the (now mutated) plan
+    }
+
+    /**
+     * --- NEW REUSABLE METHOD ---
+     * This method contains the enrichment logic extracted from the original
+     * 'enrichPlanWithPlaceDetails'. It can enrich ANY list of Day objects.
+     */
+    private Mono<List<Day>> enrichDays(List<Day> days, String locationHint) {
+        
         List<Mono<Void>> enrichmentTasks = new ArrayList<>();
-        String locationHint = plan.getLocation(); // Use trip location as context for better search results
 
-        // Iterate through each day in the plan
-        for (Day day : plan.getDays()) {
-
-            // Enrich the Hotel for the day, if it exists
+        for (Day day : days) {
+            // Enrich the Hotel
             if (day.getHotel() != null && day.getHotel().getHotelName() != null
                     && !day.getHotel().getHotelName().isBlank()) {
                 String hotelQuery = day.getHotel().getHotelName() + ", " + locationHint;
 
-                // Create a Mono task to find place details for the hotel
                 Mono<Void> hotelTask = placesService.findPlaceDetails(hotelQuery)
-                        .doOnNext(placeDetails -> { // Use doOnNext for the side-effect of setting details
+                        .doOnNext(placeDetails -> {
                             if (placeDetails != null) {
                                 day.getHotel().setPlaceDetails(placeDetails);
                             } else {
                                 System.err.println("WARN: No place details found for hotel: " + hotelQuery);
                             }
                         })
-                        .then(); // Convert Mono<PlaceDetails> to Mono<Void> for joining with Mono.when
-                enrichmentTasks.add(hotelTask); // Add the task to our list
-            } else if (day.getHotel() != null) {
-                System.err.println("WARN: Hotel name missing for day " + day.getDayNumber() + ". Skipping enrichment.");
+                        .then();
+                enrichmentTasks.add(hotelTask);
             }
 
-            // Enrich Activities for the day, if they exist
+            // Enrich Activities
             if (day.getActivities() != null) {
                 for (Activity activity : day.getActivities()) {
                     if (activity != null && activity.getName() != null && !activity.getName().isBlank()) {
                         String activityQuery = activity.getName() + ", " + locationHint;
 
-                        // Create a Mono task to find place details for the activity
                         Mono<Void> activityTask = placesService.findPlaceDetails(activityQuery)
                                 .doOnNext(placeDetails -> {
                                     if (placeDetails != null) {
                                         activity.setPlaceDetails(placeDetails);
                                     } else {
-                                        System.err
-                                                .println("WARN: No place details found for activity: " + activityQuery);
+                                        System.err.println("WARN: No place details found for activity: " + activityQuery);
                                     }
                                 })
-                                .then(); // Convert to Mono<Void>
-                        enrichmentTasks.add(activityTask); // Add the task to our list
-                    } else if (activity != null) {
-                        System.err.println(
-                                "WARN: Activity name missing for day " + day.getDayNumber() + ". Skipping enrichment.");
+                                .then();
+                        enrichmentTasks.add(activityTask);
                     }
                 }
             }
-        } // End of loop through days
+        } // End of loop
 
-        // If no enrichment tasks were created, just return the original plan
         if (enrichmentTasks.isEmpty()) {
-            return Mono.just(plan);
+            return Mono.just(days); // No enrichment needed
         }
 
-        // --- 5. EXECUTE ALL TASKS IN PARALLEL ---
-        // Mono.when takes a list of Monos (in our case, Mono<Void>) and runs them
-        // concurrently.
-        // It returns a single Mono<Void> that completes only when ALL the input Monos
-        // have completed.
-        // .thenReturn(plan) is crucial: after all enrichment tasks are done, it emits
-        // the original
-        // 'plan' object (which has been modified by the .doOnNext side-effects)
-        // downstream.
+        // Execute all tasks in parallel and return the (mutated) list when done
         System.out.println("INFO: Starting enrichment for " + enrichmentTasks.size() + " items...");
         return Mono.when(enrichmentTasks)
-                .thenReturn(plan) // Return the modified plan object after all tasks finish
+                .thenReturn(days)
                 .doOnSuccess(p -> System.out.println("INFO: Enrichment complete."));
     }
-}
+
+
+}// End of TripPlanService.java

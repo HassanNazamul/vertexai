@@ -1,10 +1,13 @@
 package com.vertexplanner.vertexai.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vertexplanner.vertexai.model.gemini.Day;
 import com.vertexplanner.vertexai.model.gemini.TripPlan; // Your POJO
 import com.vertexplanner.vertexai.service.TripPlanService; // Your new service
 
@@ -41,6 +44,30 @@ public class PlanTripController {
 
         // Call your service with the prompt from the request
         return tripPlanService.generateTripPlan(request.prompt());
+    }
+
+
+    /**
+     * --- NEW ENDPOINT ---
+     * Handles POST requests to /api/v1/plan/options/day
+     * Expects a JSON body like:
+     * {
+     * "location": "Rome",
+     * "dayNumber": 2,
+     * "preferences": "art, low budget",
+     * "numberOfOptions": 3
+     * }
+     *
+     * @return A Mono<List<Day>>
+     */
+    @PostMapping("/options/day")
+    public Mono<List<Day>> generateDailyOptions(
+            @RequestBody DailyOptionsRequest request) {
+
+                System.out.println("Received request for daily options: " + request);
+        
+        // This calls the new service method we created in Step 2
+        return tripPlanService.generateDailyOptions(request);
     }
 
     /**
