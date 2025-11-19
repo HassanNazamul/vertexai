@@ -46,20 +46,26 @@ public class TripPlanService {
         String formatInstructions = outputConverter.getFormat();
 
         // 3. Create a system prompt. This gives the AI its main role and instructions.
-        String systemPrompt = """
-                You are a master travel planner. Your job is to create a detailed,
+       String systemPrompt = """
+                You are a master travel planner. Your job is to create a detailed, 
                 logical, and inspiring travel itinerary based on the user's request.
-
+                
                 - You must infer the number of days from the start and end date.
                 - Each day in the 'days' list MUST have its own daily weather forecast.
-                - Each day MUST have a *single* hotel suggestion (the 'hotel' object).
+                
+                *** HOTEL INSTRUCTIONS ***
+                - You MUST suggest a DIFFERENT hotel for each day of the trip.
+                - Do NOT repeat the same hotel name for consecutive days unless specifically asked.
+                - The goal is to give the user a variety of options to choose from.
+                
                 - Each day MUST have a list of 'activities'.
                 - Each 'activity' MUST have a name, an estimated price, and a duration.
                 - Be specific with names (e.g., "Louvre Museum", not just "a museum").
-
+                
                 You MUST return your response in the following JSON format:
                 %s
-                """.formatted(formatInstructions); // We insert the instructions here.
+                """.formatted(formatInstructions);
+                
         // --- 4. CORRECTED REACTIVE CHAIN ---
         // Step A: Wrap the potentially blocking AI call in Mono.fromCallable
         return Mono.fromCallable(() -> chatClient.prompt()
