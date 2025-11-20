@@ -46,26 +46,26 @@ public class TripPlanService {
         String formatInstructions = outputConverter.getFormat();
 
         // 3. Create a system prompt. This gives the AI its main role and instructions.
-       String systemPrompt = """
-                You are a master travel planner. Your job is to create a detailed, 
+        String systemPrompt = """
+                You are a master travel planner. Your job is to create a detailed,
                 logical, and inspiring travel itinerary based on the user's request.
-                
+
                 - You must infer the number of days from the start and end date.
                 - Each day in the 'days' list MUST have its own daily weather forecast.
-                
+
                 *** HOTEL INSTRUCTIONS ***
                 - You MUST suggest a DIFFERENT hotel for each day of the trip.
                 - Do NOT repeat the same hotel name for consecutive days unless specifically asked.
                 - The goal is to give the user a variety of options to choose from.
-                
+
                 - Each day MUST have a list of 'activities'.
                 - Each 'activity' MUST have a name, an estimated price, and a duration.
                 - Be specific with names (e.g., "Louvre Museum", not just "a museum").
-                
+
                 You MUST return your response in the following JSON format:
                 %s
                 """.formatted(formatInstructions);
-                
+
         // --- 4. CORRECTED REACTIVE CHAIN ---
         // Step A: Wrap the potentially blocking AI call in Mono.fromCallable
         return Mono.fromCallable(() -> chatClient.prompt()
@@ -78,7 +78,6 @@ public class TripPlanService {
                 .flatMap(this::enrichPlanWithPlaceDetails);
     }
 
-
     /**
      * --- NEW PUBLIC METHOD ---
      * Generates a list of alternative Day plans.
@@ -89,7 +88,6 @@ public class TripPlanService {
         var outputConverter = new BeanOutputConverter<>(DailyOptionsPlan.class);
         String formatInstructions = outputConverter.getFormat();
 
-        // 2. Create a new system prompt for this specific task
         String systemPrompt = """
                 You are a travel planner. Your job is to create several
                 alternative, detailed, and inspiring travel plans for a single day.
@@ -98,21 +96,27 @@ public class TripPlanService {
                 - Each option MUST be a complete 'Day' object.
                 - Each 'Day' object must have its own weather, a single hotel,
                   and a list of activities.
+
+                *** CRITICAL HOTEL INSTRUCTION ***
+                - Each of the generated options MUST feature a DIFFERENT hotel.
+                - Do NOT repeat the same hotel across the different options.
+                - The goal is to provide variety (e.g., different styles or locations).
+
                 - All plans should be for Day %d in %s.
                 - The user's preferences are: %s.
 
                 You MUST return your response in the following JSON format:
                 %s
                 """.formatted(
-                    request.numberOfOptions(),
-                    request.dayNumber(),
-                    request.location(),
-                    request.preferences(),
-                    formatInstructions);
-        
+                request.numberOfOptions(),
+                request.dayNumber(),
+                request.location(),
+                request.preferences(),
+                formatInstructions);
+
         // 3. Create a simple user prompt (the system prompt does most of the work)
         String userPrompt = "Generate %d options for Day %d in %s."
-            .formatted(request.numberOfOptions(), request.dayNumber(), request.location());
+                .formatted(request.numberOfOptions(), request.dayNumber(), request.location());
 
         // 4. Call the AI
         return Mono.fromCallable(() -> chatClient.prompt()
@@ -121,17 +125,16 @@ public class TripPlanService {
                 .call()
                 .entity(outputConverter) // This returns a Mono<DailyOptionsPlan>
         )
-        .flatMap(dailyOptionsPlan -> {
-            if (dailyOptionsPlan == null || dailyOptionsPlan.getDailyOptions() == null) {
-                return Mono.just(List.<Day>of()); // Return an empty list if AI fails
-            }
-            // 5. Enrich the list of days and return it
-            // We will write 'enrichDays' in the next action
-            return this.enrichDays(dailyOptionsPlan.getDailyOptions(), request.location())
-                    .thenReturn(dailyOptionsPlan.getDailyOptions()); // Return the enriched list
-        });
+                .flatMap(dailyOptionsPlan -> {
+                    if (dailyOptionsPlan == null || dailyOptionsPlan.getDailyOptions() == null) {
+                        return Mono.just(List.<Day>of()); // Return an empty list if AI fails
+                    }
+                    // 5. Enrich the list of days and return it
+                    // We will write 'enrichDays' in the next action
+                    return this.enrichDays(dailyOptionsPlan.getDailyOptions(), request.location())
+                            .thenReturn(dailyOptionsPlan.getDailyOptions()); // Return the enriched list
+                });
     }
-
 
     /**
      * --- REFACTORED ---
@@ -155,7 +158,7 @@ public class TripPlanService {
      * 'enrichPlanWithPlaceDetails'. It can enrich ANY list of Day objects.
      */
     private Mono<List<Day>> enrichDays(List<Day> days, String locationHint) {
-        
+
         List<Mono<Void>> enrichmentTasks = new ArrayList<>();
 
         for (Day day : days) {
@@ -187,7 +190,8 @@ public class TripPlanService {
                                     if (placeDetails != null) {
                                         activity.setPlaceDetails(placeDetails);
                                     } else {
-                                        System.err.println("WARN: No place details found for activity: " + activityQuery);
+                                        System.err
+                                                .println("WARN: No place details found for activity: " + activityQuery);
                                     }
                                 })
                                 .then();
@@ -207,6 +211,5 @@ public class TripPlanService {
                 .thenReturn(days)
                 .doOnSuccess(p -> System.out.println("INFO: Enrichment complete."));
     }
-
 
 }// End of TripPlanService.java
